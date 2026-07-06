@@ -90,4 +90,23 @@ def predict_premium(data: UserInput):
 
     prediction=model.predict(input_df)[0]
 
-    return JSONResponse(status_code=200,content={'prediction_category':prediction})
+    probabilities = model.predict_proba(input_df)[0]
+    classes = model.classes_
+
+    class_probabilities = {
+        str(cls): round(float(prob), 4)
+        for cls, prob in zip(classes, probabilities)
+    }
+
+    confidence = round(float(max(probabilities)), 4)
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "response": {
+                "predicted_category": prediction,
+                "confidence": confidence,
+                "class_probabilities": class_probabilities
+            }
+        }
+    )
